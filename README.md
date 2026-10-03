@@ -13,7 +13,7 @@ idea ──/design-task──▶ Ready cards in Notion ──/run-cards──▶
 ## What you need
 
 - **Claude Code** with background sessions (`claude --bg`, `claude agents`).
-- **[Superpowers](https://github.com/obra/superpowers)**, a skills plugin. The skills use its `brainstorming`, `writing-plans`, `subagent-driven-development` and `verification-before-completion` skills.
+- **[Superpowers](https://github.com/obra/superpowers)**, a skills plugin. The skills use its `brainstorming`, `writing-plans`, `subagent-driven-development` and `verification-before-completion` skills. Install it with `/plugin install superpowers@claude-plugins-official`.
 - **Notion MCP**: the claude.ai Notion connector or the [Notion MCP server](https://developers.notion.com/docs/mcp), with access to your board.
 - **git** and **jq**.
 - Optional: an e2e lock (see below), and the [Mobbin](https://mobbin.com) MCP for UI references while designing.
@@ -78,6 +78,13 @@ The skills only need a tracker that can: query cards by status or title, read a 
 - Workers run with `--permission-mode auto`, so check your permission settings before the first run.
 - Cards land when a commit with a `Task: <card id>` trailer is on the branch; `Blocked by` uses this to decide what can start.
 - A worker that needs a decision writes a **Question** on the card and stops; nothing guesses on your behalf.
+
+## Troubleshooting
+
+**`claude --bg` says "Couldn't reach the background service", or `claude agents` shows nothing.**
+- Run `claude agents` once in a normal terminal before the first `/run-cards`, to check the background service answers.
+- If it works there but not inside a session, Claude Code's Bash sandbox is probably blocking it: allow the `claude --bg` and `claude agents` calls to run outside the sandbox when asked, or add them to your permission allow-list.
+- A shell alias or function named `claude` can't interfere: the skills call `command claude`, which skips it.
 
 ## License
 
