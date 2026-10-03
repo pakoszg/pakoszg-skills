@@ -72,7 +72,7 @@ Then fetch the card:
 Dispatch one review subagent (Agent tool, model opus) with the card's Design, Acceptance criteria and Out of scope, the branch and its worktree, and `git diff run/<slug>...<branch>`. It must:
 - check the diff against the Design and the repo's CLAUDE.md rules;
 - run the unit tests and typecheck in the card's worktree;
-- run **only the e2e tests the change touches** (through `e2e-slot` if it's installed), never the full suite;
+- run **only the e2e tests the change touches** (through `e2e-slot` if it is on the PATH), never the full suite;
 - report findings as Critical / Important / Minor with file:line, and stay read-only.
 
 ## 7. Fix or accept

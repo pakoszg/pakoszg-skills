@@ -1,7 +1,0 @@
-#!/usr/bin/env bash
-# Run a command while holding the machine's single e2e slot, so parallel workers don't share one test port.
-# Usage: e2e-slot pnpm test:e2e e2e/login.spec.ts   (needs bun)
-set -euo pipefail
-here=$(dirname "$(readlink -f "$0")")
-bun=$(command -v bun || echo "$HOME/.bun/bin/bun")
-exec "$bun" "$here/e2e-slot.ts" "$@"

@@ -16,7 +16,7 @@ idea ──/design-task──▶ Ready cards in Notion ──/run-cards──▶
 - **[Superpowers](https://github.com/obra/superpowers)**, a skills plugin. The skills use its `brainstorming`, `writing-plans`, `subagent-driven-development` and `verification-before-completion` skills.
 - **Notion MCP**: the claude.ai Notion connector or the [Notion MCP server](https://developers.notion.com/docs/mcp), with access to your board.
 - **git** and **jq**.
-- Optional: **[bun](https://bun.sh)** for the e2e lock (see below), and the [Mobbin](https://mobbin.com) MCP for UI references while designing.
+- Optional: an e2e lock (see below), and the [Mobbin](https://mobbin.com) MCP for UI references while designing.
 
 ## Install
 
@@ -67,14 +67,7 @@ Cards stay in **Review** after merging; I move them to **Done**.
 
 ## Optional: e2e lock
 
-When several workers run end-to-end tests at once, they can collide on one test port. `scripts/e2e-slot` runs a command while holding a machine-wide lock, and others wait up to 20 minutes:
-
-```bash
-ln -s ~/code/pakoszg-skills/scripts/e2e-slot ~/.local/bin/e2e-slot
-e2e-slot pnpm test:e2e e2e/login.spec.ts
-```
-
-The skills use it when it's installed.
+When several workers run end-to-end tests at once, they can collide on one test port. The fix is a small `e2e-slot` command that lets one run go at a time. It isn't included: [docs/e2e-lock-blueprint.md](docs/e2e-lock-blueprint.md) describes it, so you can hand it to Claude and have it built for your setup. Once `e2e-slot` is on your `PATH`, the skills use it.
 
 ## Not using Notion?
 
