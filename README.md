@@ -52,9 +52,11 @@ Notion data source: collection://<your data source id>
 
 ## How I use it
 
+I run both skills on Opus (`/model opus`): design needs judgment, and the orchestrator reviews and merges everything. The workers use whichever model each card names.
+
 1. **Design.** In the repo, run `/design-task <idea, goal or card URL>`. Claude reads the code, brainstorms with me one question at a time, splits the work into small cards (1–5 points, each mergeable on its own), sets dependencies and a model per card, and asks about every assumption. I approve the table, and it writes the cards and marks them **Ready**.
 2. **`/clear`.** Everything the workers need is on the cards, so I start the build with a clean context.
-3. **Run.** I switch to Opus (`/model opus`) and run `/run-cards <card URLs or a shared title prefix>`. It:
+3. **Run.** I run `/run-cards <card URLs or a shared title prefix>`. It:
    - creates a worktree on a new branch `run/<name>`;
    - starts one background Claude session per card (in parallel when cards don't overlap). Each writes a spec and a plan, builds with TDD and sets its card to **Review**;
    - reviews each card, sends findings back to its worker, and merges it into `run/<name>`;
