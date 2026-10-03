@@ -30,21 +30,22 @@ ln -s ~/code/pakoszg-skills/skills/run-cards   ~/.claude/skills/run-cards
 
 Create a Notion database with these properties:
 
-| Property | Type | Values |
-| --- | --- | --- |
-| Task name | title | |
-| Status | select | Plans, Ready, In progress, Review, Done, Blocked |
-| Repo | select | local repo paths, e.g. `~/code/my-app` |
-| Priority | select | High, Medium, Low |
-| Points | select | 1, 2, 3, 5 |
-| Model | select | Opus, Sonnet, Haiku |
-| Blocked by | relation | to the same database |
-| Result, Question, Branch | text | |
+| Property                 | Type     | Values                                           |
+| ------------------------ | -------- | ------------------------------------------------ |
+| Task name                | title    |                                                  |
+| Status                   | select   | Plans, Ready, In progress, Review, Done, Blocked |
+| Repo                     | select   | local repo paths, e.g. `~/code/my-app`           |
+| Priority                 | select   | High, Medium, Low                                |
+| Points                   | select   | 1, 2, 3, 5                                       |
+| Model                    | select   | Opus, Sonnet, Haiku                              |
+| Blocked by               | relation | to the same database                             |
+| Result, Question, Branch | text     |                                                  |
 
 Then tell each repo where its board is, in its `CLAUDE.md`:
 
 ```markdown
 ## Task board
+
 Notion data source: collection://<your data source id>
 ```
 
@@ -61,13 +62,17 @@ I run both skills on Opus (`/model opus`): design needs judgment, and the orches
    - starts one background Claude session per card (in parallel when cards don't overlap). Each writes a spec and a plan, builds with TDD and sets its card to **Review**;
    - reviews each card, sends findings back to its worker, and merges it into `run/<name>`;
    - brings a worker's question to me when it is stuck, and passes my answer back.
-4. **Finish.** I review the `run/<name>` branch, merge it into `main` and push myself. `/run-cards` never touches `main`, never pushes and never deletes anything; at the end it lists the worktrees I can clean up.
+4. **Finish.** I review the `run/<name>` branch, run the full e2e suite on it if needed, merge it into `main` and push myself. `/run-cards` never touches `main`, never pushes and never deletes anything; at the end it lists the worktrees I can clean up.
 
 Cards stay in **Review** after merging; I move them to **Done**.
 
-## Optional: e2e lock
+## Tests
 
-When several workers run end-to-end tests at once, they can collide on one test port. The fix is a small `e2e-slot` command that lets one run go at a time. It isn't included: [docs/e2e-lock-blueprint.md](docs/e2e-lock-blueprint.md) describes it, so you can hand it to Claude and have it built for your setup. Once `e2e-slot` is on your `PATH`, the skills use it.
+`/run-cards` tests every card before merging it into `run/<name>`: unit tests, typecheck, and the e2e specs that cover what the card changed. It doesn't run the full e2e suite. Run that when you review `run/<name>`, before merging into `main`.
+
+Which e2e specs cover which code is Claude's call unless you write it down: put a mapping in `CLAUDE.md` (`e2e/billing.spec.ts` covers `src/billing/`) and `/run-cards` follows it.
+
+**Optional: an e2e lock.** `/run-cards` builds several cards at once, so their e2e runs can overlap. If your e2e uses something only one run can use at a time (a fixed port, a shared test database), overlapping runs fail or test each other's server. Then you need a small `e2e-slot` command that lets one run go at a time. It isn't included: [docs/e2e-lock-blueprint.md](docs/e2e-lock-blueprint.md) describes it, so you can have Claude build it for your setup. Once `e2e-slot` is on your `PATH`, `/run-cards` uses it. If each worktree gets its own port and database, you don't need it.
 
 ## Not using Notion?
 
@@ -82,6 +87,7 @@ The skills only need a tracker that can: query cards by status or title, read a 
 ## Troubleshooting
 
 **`claude --bg` says "Couldn't reach the background service", or `claude agents` shows nothing.**
+
 - Run `claude agents` once in a normal terminal before the first `/run-cards`, to check the background service answers.
 - If it works there but not inside a session, Claude Code's Bash sandbox is probably blocking it: allow the `claude --bg` and `claude agents` calls to run outside the sandbox when asked, or add them to your permission allow-list.
 - A shell alias or function named `claude` can't interfere: the skills call `command claude`, which skips it.

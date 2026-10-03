@@ -63,6 +63,7 @@ while :; do for b in <card branches>; do t=$(git -C <Repo> log -1 --format=%ct "
 When it fires, read only the last ~40 lines of that session's log (`command claude agents --json --all` gives the path). Progressing (long test run) → restart the loop. Going in circles → resume it with: "You've been on this for 40 minutes without a commit. If the next attempt doesn't fix it, commit your work in progress and ask on the card (Question)." Still circling 20 minutes later → `command claude stop` it, set the card to Blocked with what you saw, and tell the user. Restart the loop whenever a branch is added or finishes.
 
 Then fetch the card:
+
 - **Review** → step 6.
 - **Blocked** with a `Question` → show it to the user verbatim and wait for the answer. Resume the session from the run worktree: `command claude --bg --resume <sessionId> -n "card-<id8>" --permission-mode auto <same --settings/--model> "Answer to your question on the card:\n\n<answer>"`, and go back to step 5.
 - Still **In progress** but the session ended → resume it once with "Continue from where you stopped." If it ends again without progress, set Blocked and tell the user.
@@ -70,6 +71,7 @@ Then fetch the card:
 ## 6. Review (here, not in the worker)
 
 Dispatch one review subagent (Agent tool, model opus) with the card's Design, Acceptance criteria and Out of scope, the branch and its worktree, and `git diff run/<slug>...<branch>`. It must:
+
 - check the diff against the Design and the repo's CLAUDE.md rules;
 - run the unit tests and typecheck in the card's worktree;
 - run **only the e2e tests the change touches** (through `e2e-slot` if it is on the PATH), never the full suite;
@@ -98,4 +100,4 @@ Dispatch one review subagent (Agent tool, model opus) with the card's Design, Ac
 
 ## 10. Report
 
-The run branch and worktree. Per card: status, merge sha, Minor notes left on the card. Then what's still waiting (and on what), that `main` is untouched and nothing is pushed, and the leftover worktrees for the user to clean up.
+The run branch and worktree, and a reminder that the full e2e suite hasn't run on it yet. Per card: status, merge sha, Minor notes left on the card. Then what's still waiting (and on what), that `main` is untouched and nothing is pushed, and the leftover worktrees for the user to clean up.
